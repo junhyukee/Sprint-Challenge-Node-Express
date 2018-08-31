@@ -1,6 +1,20 @@
 const express = require('express');
 const actionModel = require('./actionModel.js');
+const projectModel = require('../projects/projectModel.js');
 const router = express.Router();
+
+async function validProject (req, res, next){
+    const { project_id } = req.body;
+    try {
+    	const project = await projectModel.get(project_id);
+    	project
+    	? next()
+    	: res.status(404).json({ message: 'Project does not exist' })
+    }
+    catch(err){
+    	next({statusCode: 404});
+    }
+}
 
 router
 	.route('/')
@@ -13,7 +27,7 @@ router
 			next(err);
 		}
 	})
-	.post(async (req, res, next) => {
+	.post(validProject, async (req, res, next) => {
 		const { project_id, description, notes, completed } = req.body;
 		try {
 			const action = await actionModel.insert({ project_id, description, notes, completed });
@@ -38,7 +52,7 @@ router
 			next(err);
 		}
 	})
-	.put(async (req, res, next) => {
+	.put(validProject, async (req, res, next) => {
 		const { id } = req.params;
 		const { project_id, description, notes, completed } = req.body;
 		try {
