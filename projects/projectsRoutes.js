@@ -64,4 +64,19 @@ router
 		}
 	})
 
+router
+	.route('/:id/actions')
+	.get(async (req, res, next) => {
+		const { id } = req.params;
+		try {
+			const actions = await projectModel.getProjectActions(id);
+			actions
+			? res.status(200).json(actions)
+			: next({ statusCode: 404 })
+		}
+		catch(err) {
+			next(err)
+		}
+	})
+
 module.exports = router;
