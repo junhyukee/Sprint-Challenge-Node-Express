@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import UpdateProject from './UpdateProject.js';
+import ActionForm from './ActionForm.js';
 
 class Project extends Component {
 	constructor(props){
@@ -10,8 +11,11 @@ class Project extends Component {
 			actions: [],
 			loaded: false,
 			updateActive: false,
+			actionActive: false,
 			name: '',
-			description: ''
+			description: '',
+			actionDescription: '',
+			actionNotes: ''
 		}
 	}
 
@@ -66,6 +70,28 @@ class Project extends Component {
 		})
 	}
 
+	onActionClick = () => {
+		this.setState((prevState) => {
+			return {actionActive: !prevState.actionActive}
+		})
+	}
+
+	onActionSubmit = (e) => {
+		e.preventDefault();
+		const id = this.props.match.params.id;
+		axios.post(`http://localhost:9000/actions`, {
+			project_id: id,
+			description: this.state.actionDescription,
+			notes: this.state.actionNotes
+		})
+			.then(res => {
+				this.setState(prevState => {
+					return { actions: [...prevState.actions, res.data], actionActive: !prevState.actionActive}
+				})
+			})
+			.catch(err => console.log(err))
+	}
+
 	render() {
 		if(!this.state.loaded) return (<div></div>)
 		return (
@@ -85,6 +111,7 @@ class Project extends Component {
 					})
 					: null
 				}
+				<button onClick={this.onActionClick}>Add Action</button>
 				<button onClick={this.onUpdateClick}>Update</button>
 				<button onClick={this.onDelete}>Delete</button>
 				{
@@ -94,6 +121,16 @@ class Project extends Component {
 						onInputChange={this.onInputChange} 
 						name={this.state.name} 
 						description={this.state.description} 
+						/>
+					: null
+				}
+				{
+					this.state.actionActive
+					? <ActionForm 
+						onActionSubmit={this.onActionSubmit} 
+						onInputChange={this.onInputChange} 
+						actionDescription={this.state.actionDescription} 
+						actionNotes={this.state.actionNotes} 
 						/>
 					: null
 				}
