@@ -12,7 +12,7 @@ async function validProject (req, res, next){
     	: res.status(404).json({ message: 'Project does not exist' })
     }
     catch(err){
-    	next({statusCode: 404});
+    	next({ statusCode: 404 });
     }
 }
 
