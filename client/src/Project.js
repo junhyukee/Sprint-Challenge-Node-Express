@@ -7,6 +7,7 @@ class Project extends Component {
 		super(props);
 		this.state = {
 			project: [],
+			actions: [],
 			loaded: false,
 			updateActive: false,
 			name: '',
@@ -18,7 +19,13 @@ class Project extends Component {
 		const id = this.props.match.params.id;
 		axios.get(`http://localhost:9000/projects/${id}`)
 			.then(res => {
-				this.setState({ project: res.data, loaded: true })
+				this.setState({ project: res.data })
+			})
+			.then(res => {
+				return axios.get(`http://localhost:9000/projects/${id}/actions`);
+			})
+			.then(res => {
+				this.setState({ actions: res.data, loaded: true})
 			})
 			.catch(err => {
 				console.log(err);
@@ -65,6 +72,19 @@ class Project extends Component {
 			<div className="project">
 				<h3>{this.state.project.name}</h3>
 				<p>{this.state.project.description}</p>
+				<h4>Actions:</h4>
+				{
+					this.state.actions.length > 0
+					? this.state.actions.map(action => {
+						return(
+							<div className="action" key={action.id}>
+								<h5>{action.description}</h5>
+								<p>{action.notes}</p>
+							</div>
+						)
+					})
+					: null
+				}
 				<button onClick={this.onUpdateClick}>Update</button>
 				<button onClick={this.onDelete}>Delete</button>
 				{
