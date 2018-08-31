@@ -15,7 +15,7 @@ class ProjectForm extends Component {
 		const { name, description } = this.state;
 		axios.post('http://localhost:9000/projects', { name, description })
 			.then(res => {
-				console.log(res);
+				this.props.history.push('/projects')
 			})
 			.catch(err => {
 				console.log(err);
